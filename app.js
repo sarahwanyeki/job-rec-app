@@ -27,9 +27,10 @@ app.use(morgan("dev"));
 
 // route section
 app.use("/api/users", authRoute);
-// app.use("/api/v1/category", categoryRoute);
+
 app.use("/api/file", fileRoute);
 app.use("/api/job", jobRoute);
+app.use("/api/application", applicationRoute);
 
 // not found route
 app.use("*", notfound);

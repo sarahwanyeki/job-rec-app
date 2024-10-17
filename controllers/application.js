@@ -1,30 +1,94 @@
-// const Application = require("../models/application");
+const { Application, User } = require("../models");
 
-// const applyForJob = async (req, res) => {
-//   try {
-//     const { jobId, resume } = req.body;
-//     const newApplication = new Application({
-//       jobId,
-//       userId: req.user.id,
-//       resume,
-//     });
-//     await newApplication.save();
+const addApplication = async (req, res, next) => {
+  try {
+    const { applicantId, name, email, phone, resume, employerId } = req.body;
 
-//     res.status(201).json({ message: "Application submitted successfully" });
-//   } catch (error) {
-//     res.status(500).json({ message: error.message });
-//   }
-// };
+    const { _id } = req.user;
 
-// const getApplications = async (req, res) => {
-//   try {
-//     const applications = await Application.find({
-//       userId: req.user.id,
-//     }).populate("jobId");
-//     res.status(200).json(applications);
-//   } catch (error) {
-//     res.status(500).json({ message: error.message });
-//   }
-// };
+    const user = await User.findById(_id);
+    if (!user) {
+      res.code = 404;
+      throw new Error("User not found");
+    }
 
-// module.exports = { applyForJob, getApplications };
+    const newApplication = new Application({
+      name,
+      email,
+      phone,
+      resume,
+    });
+
+    await newApplication.save();
+
+    res.status(200).json({
+      code: 200,
+      status: true,
+      message: "Application created successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const updateApplication = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { _id } = req.user;
+    const { name, email, phone, resume } = req.body;
+
+    const application = await Application.findById(id);
+    if (!application) {
+      res.code = 404;
+      throw new Error("Job not found");
+    }
+
+    const isApplicationExist = await Application.findOne({ email });
+    if (
+      isApplicationExist &&
+      isApplicationExist.email === email &&
+      String(isApplicationExist.Error_id) !== String(application._id)
+    ) {
+      res.code = 400;
+      throw new Error("Application already exist");
+    }
+
+    application.email = email ? email : application.email;
+    application.name = name;
+    application.phone = phone;
+    application.resume = resume;
+    application.applicantId = _id;
+    application.employerId = _id;
+    await application.save();
+    res.status(200).json({
+      code: 200,
+      status: true,
+      message: "Application updated successfully",
+      data: { application },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const deleteApplication = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const application = await Application.findById(id);
+    if (!application) {
+      res.code = 404;
+      throw new Error("Application not found");
+    }
+
+    await Application.findByIdAndDelete(id);
+    res.status(200).json({
+      code: 200,
+      status: true,
+      message: "Application deleted successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { addApplication, updateApplication, deleteApplication };

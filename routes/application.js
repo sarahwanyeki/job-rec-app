@@ -1,18 +1,43 @@
-// const express = require("express");
-// const { applyForJob, getApplications } = require("../controllers/application");
-// const { validateApplication } = require("../middlewares/validate");
-// const { validationResult } = require("express-validator");
-// const { authMiddleware } = require("../middlewares/auth");
+const express = require("express");
+const router = express.Router();
 
-// const router = express.Router();
+const { applicationController } = require("../controllers");
+const {
+  addApplicationValidator,
+  idValidator,
+} = require("../validators/application");
 
-// router.post(
-//   "/",
-//   authMiddleware,
-//   validateApplication,
-//   validationResult,
-//   applyForJob
-// );
-// router.get("/", authMiddleware, getApplications);
+const validate = require("../validators/validate");
 
-// module.exports = router;
+const isAuth = require("../middlewares/isAuth");
+const isJobSeeker = require("../middlewares/isJobSeeker");
+
+router.post(
+  "/",
+  isAuth,
+  isJobSeeker,
+  idValidator,
+  validate,
+  addApplicationValidator,
+  applicationController.addApplication
+);
+
+router.put(
+  "/:id",
+  isAuth,
+  isJobSeeker,
+  idValidator,
+  validate,
+  applicationController.updateApplication
+);
+
+router.delete(
+  "/:id",
+  isAuth,
+  isJobSeeker,
+  idValidator,
+  validate,
+  applicationController.deleteApplication
+);
+
+module.exports = router;
