@@ -68,23 +68,6 @@ const changePasswordValidator = [
   check("newPassword").notEmpty().withMessage("New password is required"),
 ];
 
-// const updateProfileValidator = [
-//   check("email").custom(async (email) => {
-//     if (email) {
-//       const isValidEmail = validateEmail(email);
-//       if (!isValidEmail) {
-//         throw "Invalid email";
-//       }
-//     }
-//   }),
-
-//   check("profilePic").custom(async (profilePic) => {
-//     if (profilePic && !mongoose.Types.ObjectId.isValid(profilePic)) {
-//       throw "Invalid profile picture";
-//     }
-//   }),
-// ];
-
 module.exports = {
   signupValidator,
   signinValidator,
@@ -92,5 +75,4 @@ module.exports = {
   verifyUserValidator,
   recoverPasswordValidator,
   changePasswordValidator,
-  // updateProfileValidator,
 };
