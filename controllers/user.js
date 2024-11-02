@@ -220,6 +220,29 @@ const changePassword = async (req, res, next) => {
   }
 };
 
+// const currentUser = async (req, res, next) => {
+//   try {
+//     const { _id } = req.user;
+
+//     const user = await User.findById(_id)
+//       .select("-password -verificationCode -forgotPasswordCode")
+//       .populate("profilePic");
+//     if (!user) {
+//       res.code = 404;
+//       throw new Error("User not found");
+//     }
+
+//     res.status(200).json({
+//       code: 200,
+//       status: true,
+//       message: "Get current user successfully",
+//       data: { user },
+//     });
+//   } catch (error) {
+//     next(error);
+//   }
+// };
+
 module.exports = {
   signup,
   signin,
@@ -228,4 +251,6 @@ module.exports = {
   forgotPasswordCode,
   recoverPassword,
   changePassword,
+  // updateProfile,
+  // currentUser,
 };
