@@ -2,7 +2,7 @@ const { check, param } = require("express-validator");
 const mongoose = require("mongoose");
 
 const addApplicationValidator = [
-  check("applicantId").notEmpty().withMessage("Employer ID is required"),
+  // check("applicantId").notEmpty().withMessage("Employer ID is required"),
   check("name").notEmpty().withMessage("Applicant's name is required"),
   check("email")
     .isEmail()
@@ -11,7 +11,7 @@ const addApplicationValidator = [
     .withMessage("Email is required"),
   check("phone"),
   check("resume"),
-  check("employerId"),
+  // check("employerId"),
 ];
 
 const idValidator = [

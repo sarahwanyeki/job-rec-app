@@ -11,6 +11,7 @@ const {
   verifyUserValidator,
   recoverPasswordValidator,
   changePasswordValidator,
+  updateProfileValidator,
 } = require("../validators/auth");
 
 const validate = require("../validators/validate");
@@ -57,7 +58,15 @@ router.put(
   authController.changePassword
 );
 
-// router.get("/current-user", isAuth, authController.currentUser);
+router.put(
+  "/update-profile",
+  isAuth,
+  updateProfileValidator,
+  validate,
+  authController.updateProfile
+);
+
+router.get("/current-user", isAuth, authController.currentUser);
 
 // exports
 module.exports = router;

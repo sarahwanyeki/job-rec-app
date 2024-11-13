@@ -2,21 +2,26 @@ const { Application, User } = require("../models");
 
 const addApplication = async (req, res, next) => {
   try {
-    const { applicantId, name, email, phone, resume, employerId } = req.body;
+    const { name, email, phone, resume, employerId } = req.body;
+    const applicantId = req.user._id; // Using logged-in user as applicantId
 
-    const { _id } = req.user;
-
-    const user = await User.findById(_id);
+    const user = await User.findById(applicantId);
     if (!user) {
-      res.code = 404;
-      throw new Error("User not found");
+      res.status(404).json({
+        code: 404,
+        status: false,
+        message: "User not found",
+      });
+      return;
     }
 
     const newApplication = new Application({
+      applicantId,
       name,
       email,
       phone,
       resume,
+      employerId,
     });
 
     await newApplication.save();
@@ -30,6 +35,39 @@ const addApplication = async (req, res, next) => {
     next(error);
   }
 };
+
+// const { Application, User } = require("../models");
+
+// const addApplication = async (req, res, next) => {
+//   try {
+//     const { applicantId, name, email, phone, resume, employerId } = req.body;
+
+//     const { _id } = req.user;
+
+//     const user = await User.findById(_id);
+//     if (!user) {
+//       res.code = 404;
+//       throw new Error("User not found");
+//     }
+
+//     const newApplication = new Application({
+//       name,
+//       email,
+//       // phone,
+//       resume,
+//     });
+
+//     await newApplication.save();
+
+//     res.status(200).json({
+//       code: 200,
+//       status: true,
+//       message: "Application created successfully",
+//     });
+//   } catch (error) {
+//     next(error);
+//   }
+// };
 
 const updateApplication = async (req, res, next) => {
   try {

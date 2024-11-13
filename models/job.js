@@ -2,14 +2,15 @@ const mongoose = require("mongoose");
 
 const jobSchema = mongoose.Schema(
   {
+    jobType: { type: String, required: true },
     title: { type: String, required: true },
     description: { type: String, required: true },
-    category: { type: String, required: true },
-    company: { type: String, required: true },
+    salary: { type: String },
     location: { type: String, required: true },
-    fixedSalary: { type: Number },
-    salaryFrom: { type: Number },
-    salaryTo: { type: Number },
+    companyName: { type: String, required: true },
+    companyDescription: { type: String, required: true },
+    contactEmail: { type: String, required: true },
+    contactPhone: { type: String, required: true },
 
     expired: {
       type: Boolean,

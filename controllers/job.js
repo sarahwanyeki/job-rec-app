@@ -3,14 +3,15 @@ const { Job, User } = require("../models");
 const addJob = async (req, res, next) => {
   try {
     const {
+      jobType,
       title,
       description,
-      category,
-      company,
+      salary,
       location,
-      fixedSalary,
-      salaryFrom,
-      salaryTo,
+      companyName,
+      companyDescription,
+      contactEmail,
+      contactPhone,
       expired,
       jobPostedOn,
     } = req.body;
@@ -22,14 +23,15 @@ const addJob = async (req, res, next) => {
       throw new Error("User not found");
     }
     const newJob = new Job({
+      jobType,
       title,
       description,
-      category,
-      company,
+      salary,
       location,
-      fixedSalary,
-      salaryFrom,
-      salaryTo,
+      companyName,
+      companyDescription,
+      contactEmail,
+      contactPhone,
       expired,
       jobPostedOn,
       postedBy: _id,
@@ -49,14 +51,15 @@ const updateJob = async (req, res, next) => {
     const { id } = req.params;
     const { _id } = req.user;
     const {
+      jobType,
       title,
       description,
-      category,
-      company,
+      salary,
       location,
-      fixedSalary,
-      salaryFrom,
-      salaryTo,
+      companyName,
+      companyDescription,
+      contactEmail,
+      contactPhone,
       expired,
       jobPostedOn,
     } = req.body;
@@ -71,20 +74,22 @@ const updateJob = async (req, res, next) => {
     if (
       isJobExist &&
       isJobExist.title === title &&
-      String(isJobExist.Error_id) !== String(job._id)
+      String(isJobExist._id) !== String(job._id)
     ) {
       res.code = 400;
       throw new Error("Job already exist");
     }
 
+    job.jobType = jobType;
     job.title = title ? title : job.title;
     job.description = description;
-    job.category = category;
-    job.company = company;
+    job.salary = salary;
     job.location = location;
-    job.fixedSalary = fixedSalary;
-    job.salaryFrom = salaryFrom;
-    job.salaryTo = salaryTo;
+    job.companyName = companyName;
+    job.companyDescription = companyDescription;
+    job.contactEmail = contactEmail;
+    job.contactPhone = contactPhone;
+
     job.expired = expired;
     job.jobPostedOn = jobPostedOn;
     job.postedBy = _id;
@@ -118,23 +123,57 @@ const deleteJob = async (req, res, next) => {
   }
 };
 
+// const getJobs = async (req, res, next) => {
+//   try {
+//     const { q, size, page } = req.query;
+//     let query = {};
+
+//     // convert size and page to int
+//     const sizeNumber = parseInt(size) || 3;
+//     const pageNumber = parseInt(page) || 1;
+
+//     if (q) {
+//       const search = RegExp(q, "i");
+
+//       query = { $or: [{ title: search }, { location: search }] };
+//     }
+
+//     const total = await Job.countDocuments({ query });
+//     const pages = Math.ceil(total / sizeNumber);
+//     const jobs = await Job.find(query)
+//       .skip((pageNumber - 1) * sizeNumber)
+//       .limit(sizeNumber)
+//       .sort({ updatedBy: -1 });
+
+//     res.status(200).json({
+//       code: 200,
+//       status: true,
+//       message: "Get job list successfully",
+//       data: { jobs, total, pages },
+//     });
+//   } catch (error) {
+//     next(error);
+//   }
+// };
+
 const getJobs = async (req, res, next) => {
   try {
     const { q, size, page } = req.query;
     let query = {};
 
-    // convert size and page to int
-    const sizeNumber = parseInt(size) || 10;
+    // Convert size and page to integers
+    const sizeNumber = parseInt(size) || 3;
     const pageNumber = parseInt(page) || 1;
 
     if (q) {
       const search = RegExp(q, "i");
-
-      query = { $or: [{ title: search }, { desc: search }] };
+      query = { $or: [{ title: search }, { location: search }] };
     }
 
-    const total = await Job.countDocuments({ query });
+    // Use query directly without wrapping it in another object
+    const total = await Job.countDocuments(query);
     const pages = Math.ceil(total / sizeNumber);
+
     const jobs = await Job.find(query)
       .skip((pageNumber - 1) * sizeNumber)
       .limit(sizeNumber)

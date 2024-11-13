@@ -52,7 +52,15 @@ const signin = async (req, res, next) => {
       code: 200,
       status: true,
       message: "User signin successful",
-      data: { token },
+      data: {
+        token,
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+        },
+      },
     });
   } catch (error) {
     next(error);
@@ -220,28 +228,82 @@ const changePassword = async (req, res, next) => {
   }
 };
 
-// const currentUser = async (req, res, next) => {
-//   try {
-//     const { _id } = req.user;
+const updateProfile = async (req, res, next) => {
+  try {
+    const { _id } = req.user;
+    const { name, email, profilePic } = req.body;
 
-//     const user = await User.findById(_id)
-//       .select("-password -verificationCode -forgotPasswordCode")
-//       .populate("profilePic");
-//     if (!user) {
-//       res.code = 404;
-//       throw new Error("User not found");
-//     }
+    const user = await User.findById(_id).select(
+      "-password -verificationCode -forgotPasswordCode"
+    );
+    if (!user) {
+      res.code = 404;
+      throw new Error("User not found");
+    }
 
-//     res.status(200).json({
-//       code: 200,
-//       status: true,
-//       message: "Get current user successfully",
-//       data: { user },
-//     });
-//   } catch (error) {
-//     next(error);
-//   }
-// };
+    if (email) {
+      const isUserExist = await User.findOne({ email });
+      if (
+        isUserExist &&
+        isUserExist.email === email &&
+        String(user._id) !== String(isUserExist._id)
+      ) {
+        res.code = 400;
+        throw new Error("Email already exists");
+      }
+    }
+
+    if (profilePic) {
+      const file = await File.findById(profilePic);
+      if (!file) {
+        res.code = 404;
+        throw new Error("File not found");
+      }
+    }
+
+    user.name = name ? name : user.name;
+    user.email = email ? email : user.email;
+    user.profilePic = profilePic;
+
+    if (email) {
+      user.isVerified = false;
+    }
+
+    await user.save();
+
+    res.status(200).json({
+      code: 200,
+      status: true,
+      message: "User profile updated successfully",
+      data: { user },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const currentUser = async (req, res, next) => {
+  try {
+    const { _id } = req.user;
+
+    const user = await User.findById(_id)
+      .select("-password -verificationCode -forgotPasswordCode")
+      .populate("profilePic");
+    if (!user) {
+      res.code = 404;
+      throw new Error("User not found");
+    }
+
+    res.status(200).json({
+      code: 200,
+      status: true,
+      message: "Get current user successfully",
+      data: { user },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 module.exports = {
   signup,
@@ -251,6 +313,6 @@ module.exports = {
   forgotPasswordCode,
   recoverPassword,
   changePassword,
-  // updateProfile,
-  // currentUser,
+  updateProfile,
+  currentUser,
 };
